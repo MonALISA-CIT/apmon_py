@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <title>Python: module ProcInfo</title>
+  <style type="text/css"><!--
+TT { font-family: lucidatypewriter, lucida console, courier }
+--></style>
+</head>
+<body bgcolor="#f0f0f8">
+<table border="0" cellpadding="2" cellspacing="0" width="100%">
+  <tbody>
+    <tr bgcolor="#7799ee">
+      <td valign="bottom"><small>&nbsp;<br>
+      </small><font color="#ffffff" face="helvetica, arial">&nbsp;<br>
+      <big><big><strong>ProcInfo</strong></big></big></font></td>
+      <td align="right" valign="bottom"><font color="#ffffff"
+ face="helvetica, arial">&nbsp;</font></td>
+    </tr>
+  </tbody>
+</table>
+<p><small><tt>*&nbsp;ApMon&nbsp;-&nbsp;Application&nbsp;Monitoring&nbsp;Tool<br>
+*&nbsp;Version:&nbsp;2.2.0</tt></small></p>
+<table border="0" cellpadding="2" cellspacing="0" width="100%">
+  <tbody>
+    <tr bgcolor="#aa55cc">
+      <td colspan="3" valign="bottom"><small><small>&nbsp;<br>
+      </small></small><font color="#fffff0" face="helvetica, arial"><big><strong>Modules</strong></big></font></td>
+    </tr>
+    <tr>
+      <td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+      <td>&nbsp;&nbsp;</td>
+      <td width="100%">
+      <table width="100%">
+        <tbody>
+          <tr>
+            <td valign="top" width="25%"><a href="Logger.html">Logger</a><br>
+            <br>
+            </td>
+            <td valign="top" width="25%"><br>
+            </td>
+            <td valign="top" width="25%"><br>
+            </td>
+            <td valign="top" width="25%"><br>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+<table border="0" cellpadding="2" cellspacing="0" width="100%">
+  <tbody>
+    <tr bgcolor="#ee77aa">
+      <td colspan="3" valign="bottom"><small><small>&nbsp;<br>
+      </small></small><font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td>
+    </tr>
+    <tr>
+      <td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+      <td>&nbsp;&nbsp;</td>
+      <td width="100%">
+      <dl>
+        <dt><font face="helvetica, arial"><small><a
+ href="ProcInfo.html#ProcInfo">ProcInfo</a>
+          </small></font></dt>
+      </dl>
+      <p>
+      <table border="0" cellpadding="2" cellspacing="0" width="100%">
+        <tbody>
+          <tr bgcolor="#ffc8d8">
+            <td colspan="3" valign="bottom"><small><small>&nbsp;<br>
+            </small></small><font color="#000000"
+ face="helvetica, arial"><a name="ProcInfo">class <strong>ProcInfo</strong></a></font></td>
+          </tr>
+          <tr bgcolor="#ffc8d8">
+            <td rowspan="2"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+            <td colspan="2"><small><small>&nbsp;</small></small></td>
+          </tr>
+          <tr>
+            <td>&nbsp;&nbsp;</td>
+            <td width="100%">
+            <dl>
+              <dt><a name="ProcInfo-__init__"><strong>__init__</strong></a>(this,
+logger)</dt>
+              <dd><small><tt>#&nbsp;<a href="#ProcInfo">ProcInfo</a>&nbsp;constructor</tt></small></dd>
+            </dl>
+            <dl>
+              <dt><a name="ProcInfo-addJobToMonitor"><strong>addJobToMonitor</strong></a>(this,
+pid, workDir)</dt>
+              <dd><small><tt>#&nbsp;Call&nbsp;this&nbsp;to&nbsp;add&nbsp;another&nbsp;PID&nbsp;to&nbsp;be&nbsp;monitored</tt></small></dd>
+            </dl>
+            <dl>
+              <dt><a name="ProcInfo-countOpenFD"><strong>countOpenFD</strong></a>(this,
+pid)</dt>
+              <dd><small><tt>#&nbsp;count&nbsp;the&nbsp;number&nbsp;of&nbsp;open&nbsp;files&nbsp;for&nbsp;the&nbsp;given&nbsp;pid</tt></small></dd>
+            </dl>
+            <dl>
+              <dt><a name="ProcInfo-countProcesses"><strong>countProcesses</strong></a>(this)</dt>
+              <dd><small><tt>#&nbsp;read&nbsp;the&nbsp;number&nbsp;of&nbsp;processes&nbsp;currently&nbsp;running&nbsp;on&nbsp;the&nbsp;system</tt></small></dd>
+            </dl>
+            <dl>
+              <dt><a name="ProcInfo-getChildren"><strong>getChildren</strong></a>(this,
+parent)</dt>
+              <dd><small><tt>#&nbsp;internal&nbsp;function&nbsp;that&nbsp;gets&nbsp;the&nbsp;full&nbsp;list&nbsp;of&nbsp;children&nbsp;(pids)&nbsp;for&nbsp;a&nbsp;process&nbsp;(pid)</tt></small></dd>
+            </dl>
+            <dl>
+              <dt><a name="ProcInfo-getFilteredData"><strong>getFilteredData</strong></a>(this,
+dataHash, paramsList)</dt>
+              <dd><small><tt>#&nbsp;Return&nbsp;a&nbsp;hash&nbsp;containing&nbsp;(param,value)&nbsp;pairs&nbsp;with&nbsp;existing&nbsp;values&nbsp;from&nbsp;the&nbsp;requested&nbsp;ones</tt></small></dd>
+            </dl>
+            <dl>
+              <dt><a name="ProcInfo-getJobData"><strong>getJobData</strong></a>(this,
+pid, params)</dt>
+              <dd><small><tt>#&nbsp;Return&nbsp;a&nbsp;filtered&nbsp;hash&nbsp;containing&nbsp;the&nbsp;job-related&nbsp;parameters&nbsp;and&nbsp;values</tt></small></dd>
+            </dl>
+            <dl>
+              <dt><a name="ProcInfo-getSystemData"><strong>getSystemData</strong></a>(this,
+params)</dt>
+              <dd><small><tt>#&nbsp;Return&nbsp;a&nbsp;filtered&nbsp;hash&nbsp;containting&nbsp;the&nbsp;system-related&nbsp;parameters&nbsp;and&nbsp;values</tt></small></dd>
+            </dl>
+            <dl>
+              <dt><a name="ProcInfo-parsePSTime"><strong>parsePSTime</strong></a>(this,
+my_time)</dt>
+              <dd><small><tt>#&nbsp;internal&nbsp;function&nbsp;that&nbsp;parses&nbsp;a&nbsp;time&nbsp;formatted&nbsp;like&nbsp;"days-hours:min:sec"&nbsp;and&nbsp;returns&nbsp;the&nbsp;corresponding<br>
+#&nbsp;number&nbsp;of&nbsp;seconds.</tt></small></dd>
+            </dl>
+            <dl>
+              <dt><a name="ProcInfo-readGenericInfo"><strong>readGenericInfo</strong></a>(this)</dt>
+              <dd><small><tt>#&nbsp;reads&nbsp;the&nbsp;IP,&nbsp;hostname,&nbsp;cpu_MHz,&nbsp;uptime</tt></small></dd>
+            </dl>
+            <dl>
+              <dt><a name="ProcInfo-readJobDiskUsage"><strong>readJobDiskUsage</strong></a>(this,
+pid)</dt>
+              <dd><small><tt>#&nbsp;if&nbsp;there&nbsp;is&nbsp;an&nbsp;work&nbsp;directory&nbsp;defined,&nbsp;then&nbsp;compute&nbsp;the&nbsp;used&nbsp;space&nbsp;in&nbsp;that&nbsp;directory<br>
+#&nbsp;and&nbsp;the&nbsp;free&nbsp;disk&nbsp;space&nbsp;on&nbsp;the&nbsp;partition&nbsp;to&nbsp;which&nbsp;that&nbsp;directory&nbsp;belongs<br>
+#&nbsp;sizes&nbsp;are&nbsp;given&nbsp;in&nbsp;MB</tt></small></dd>
+            </dl>
+            <dl>
+              <dt><a name="ProcInfo-readJobInfo"><strong>readJobInfo</strong></a>(this,
+pid)</dt>
+              <dd><small><tt>#&nbsp;read&nbsp;information&nbsp;about&nbsp;this&nbsp;the&nbsp;JOB_PID&nbsp;process<br>
+#&nbsp;memory&nbsp;sizes&nbsp;are&nbsp;given&nbsp;in&nbsp;KB</tt></small></dd>
+            </dl>
+            <dl>
+              <dt><a name="ProcInfo-readLoadAvg"><strong>readLoadAvg</strong></a>(this)</dt>
+              <dd><small><tt>#&nbsp;read&nbsp;system&nbsp;load&nbsp;average</tt></small></dd>
+            </dl>
+            <dl>
+              <dt><a name="ProcInfo-readMemInfo"><strong>readMemInfo</strong></a>(this)</dt>
+              <dd><small><tt>#&nbsp;sizes&nbsp;are&nbsp;reported&nbsp;in&nbsp;MB&nbsp;(except&nbsp;_usage&nbsp;that&nbsp;is&nbsp;in&nbsp;percent).</tt></small></dd>
+            </dl>
+            <dl>
+              <dt><a name="ProcInfo-readNetworkInfo"><strong>readNetworkInfo</strong></a>(this)</dt>
+              <dd><small><tt>#&nbsp;read&nbsp;network&nbsp;information&nbsp;like&nbsp;transfered&nbsp;kBps&nbsp;and&nbsp;nr.&nbsp;of&nbsp;errors&nbsp;on&nbsp;each&nbsp;interface</tt></small></dd>
+            </dl>
+            <dl>
+              <dt><a name="ProcInfo-readNetStat"><strong>readNetStat</strong></a>(this)</dt>
+              <dd><small><tt>#&nbsp;run&nbsp;nestat&nbsp;and&nbsp;collect&nbsp;sockets&nbsp;info&nbsp;(tcp,&nbsp;udp,&nbsp;unix)&nbsp;and&nbsp;connection&nbsp;states&nbsp;for&nbsp;tcp&nbsp;sockets&nbsp;from&nbsp;netstat</tt></small></dd>
+            </dl>
+            <dl>
+              <dt><a name="ProcInfo-readStat"><strong>readStat</strong></a>(this)</dt>
+              <dd><small><tt>#&nbsp;this&nbsp;has&nbsp;to&nbsp;be&nbsp;run&nbsp;twice&nbsp;(with&nbsp;the&nbsp;$lastUpdateTime&nbsp;updated)&nbsp;to&nbsp;get&nbsp;some&nbsp;useful&nbsp;results<br>
+#&nbsp;the&nbsp;information&nbsp;about&nbsp;pages_in/out&nbsp;and&nbsp;swap_in/out&nbsp;isn't&nbsp;available&nbsp;for&nbsp;2.6&nbsp;kernels&nbsp;(yet)</tt></small></dd>
+            </dl>
+            <dl>
+              <dt><a name="ProcInfo-removeJobToMonitor"><strong>removeJobToMonitor</strong></a>(this,
+pid)</dt>
+              <dd><small><tt>#&nbsp;Call&nbsp;this&nbsp;to&nbsp;stop&nbsp;monitoring&nbsp;a&nbsp;PID</tt></small></dd>
+            </dl>
+            <dl>
+              <dt><a name="ProcInfo-update"><strong>update</strong></a>(this)</dt>
+              <dd><small><tt>#&nbsp;This&nbsp;should&nbsp;be&nbsp;called&nbsp;from&nbsp;time&nbsp;to&nbsp;time&nbsp;to&nbsp;update&nbsp;the&nbsp;monitored&nbsp;data,<br>
+#&nbsp;but&nbsp;not&nbsp;more&nbsp;often&nbsp;than&nbsp;once&nbsp;a&nbsp;second&nbsp;because&nbsp;of&nbsp;the&nbsp;resolution&nbsp;of&nbsp;time()</tt></small></dd>
+            </dl>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      </p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</p>
+</body>
+</html>

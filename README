@@ -1,0 +1,298 @@
+
+                  ApMon - Application Monitoring API for Python
+                                 version 2.2.16
+                  ===========================================
+                                  August 2009
+                     California Institute of Technology
+                    =======================================
+
+INTRODUCTION
+============
+
+ApMon is an API that can be used by any application to send monitoring
+information to MonALISA services (http://monalisa.cacr.caltech.edu). The
+monitoring data is sent as UDP datagrams to one or more hosts running MonALISA.
+The MonALISA host may require a password enclosed in each datagram, for
+authentication purposes. ApMon can also send datagrams that contain monitoring
+information regarding the system or the application.
+
+
+WHAT'S NEW IN VERSION 2.x
+=========================
+
+ApMon 2.x was extended with xApMon, a feature that allows it to send to the
+MonALISA service datagrams with monitoring information regarding the system and
+the application. This extension can be used completely on Linux systems and
+partially on Windows systems.
+
+In 2.2.0 protocol (requires ML Service >= 2.4.10), each UDP packet includes 2 new
+INT32 fields to identify the sender and the sequence number. This will enable ML
+Service to detect lost packets, if it is configured to do so. (See the two new 
+fields: instance_id and sequence_number).
+
+FILES
+=====
+
+The ApMon archive contains the following files in the ApMon module:
+   - apmon.py - main ApMon module. It can be instantiated by users to send data.
+   - ProcInfo.py - procedures to monitor the system and a given application.
+   - README - this file.
+   - example/*.py - a set of examples with the usage of the ApMon module.
+   - example/*.conf - a set of sample destination files, for url/file configuration.
+   - ApMon_doc/*.html - HTML documentation
+
+
+USING APMON
+===========
+
+The ApMon.pm modules defines the ApMon class that has to be instantiated in one of the
+following ways:
+
+  - passing as parameter a destination location URL/file. This should be a string that
+    represents either a filename, or an url address (if it starts with http://). ApMon
+    class will start a second thread that will verify periodically this destination
+    location for any changes. This verification is done in a sepparate thread
+    because there could be long waiting times for the downloading and the
+    resolving of the destination hosts for the udp datagrams. This way, ApMon sendParam*
+    functions will not block. You can also pass an array of file/url strings.
+
+  - passing as parameter a tuple, containg as elements directly the destinations
+    (host[:port][ pass]). ApMon will send datagrams to all valid given destinations (i.e.
+    hosts that can be resolved), with default options. 
+
+  - passing as parameter to the constructor a hash. In this case, the keys
+    will be destinations and the corresponding values will be references to another hash
+    in which the key is a configuration option and the value is the value of that option.
+    Note that in this case, the options should not be preceded by xApMon_ and options
+    should be True/False instead of on/off as in the configuration file.
+
+  For a practical example, please see the examples/*.py test scripts.
+
+The Python ApMon constructor supports a second optional parameter: the default log level.
+This way, if you don't want de default output from ApMon when you create the instance, you 
+can do something like:
+	apm = apmon.ApMon(apmonUrl, apmon.Logger.WARNING)
+
+  The datagram sent to the MonaLisa module has the following structure:
+  - a header which has the following syntax:
+      v:<ApMon_version>p:<password>
+
+      (the password is sent in plaintext; if the MonALISA host does not require
+      a password, an 0-length string should be sent instead of the password).
+
+  - instance_id ((int) from v2.2.0)
+  - sequence_nr ((int) from v2.2.0) - these two are used to identify the ApMon sender
+  - cluster name (string) - the name of the monitored cluster
+  - node name (string) - the name of the monitored nodes
+  - number of parameters (int)
+  - for each parameter:
+        - name (string),
+        - value type (int),
+        - value (can be double, int or string)
+  - optionally a time (int) if the user wants to send a result specifying the time himself.
+
+  The configuration file has the following format:
+
+# list of destination MonALISA services, one on each line:
+IP_address|DNS_name[:port][ password]
+
+# list of xApMon_... settings, one on each line:
+xApMon_option = on/off/value
+
+  For an example see the examples/*.conf files.
+
+  If the port is not specified, the default value 8884 will be assumed.
+If the password is not specified, an empty string will be sent as password
+to the MonALISA host (and the host will only accept the datagram if it does not
+require a password). The configuration file may contain blank lines and
+comment lines (starting with "#"); these lines are ignored, and so are the
+leading and the trailing white spaces from the other lines.
+
+  To send user parameters to MonALISA, you have the following set of functions:
+
+  - sendParameters ( clusterName, nodeName, params);
+
+Use this to send a set of parameters to all given destinations.
+The default cluster an node names will be updated with the values given here.
+If afterwards you want to send more parameters, you can use the shorter version
+of this function, sendParams. The parameters to be sent can be eiter a list, or
+a hash. If list, it should have an even length and should contain pairs like 
+(paramName, paramValue). paramValue can be a string, an integer or a float. 
+
+  - sendParams (params);
+
+Use this to send a set of parameters without specifying a cluster and a node name.
+In this case, the default values for cluster and node name will be used. See the
+sendParameters function for more details.
+
+  - sendTimedParameters (clusterName, nodeName, time, params);
+
+Use this instead of sendParameters to set the time for each packet that is sent.
+The time is in seconds from Epoch. If you use the other function, the time for these
+parameters will be sent by the MonALISA serice that receives them. Note that it is
+recommended to use the other version unless you really need to send the parameters
+with a different time, since the local time on the machine might not be synchronized
+to a time server. The MonALISA service sets the correct real time for the packets
+that it receives.
+
+   Please see the examples/*.py files for examples of using these functions.
+
+  To monitor jobs, you have to specify the PID of the parent process for the tree of
+processes that you want to monitor, the working directory, the cluster and the
+node names. If work directory is "", no information will be retrieved about disk:
+  - addJobToMonitor (pid, workDir, clusterName, nodeName);
+
+  To stop monitoring a job, just call:
+  - removeJobToMonitor (pid);
+
+  If you want to disable temporarily sending of background monitoring information, and
+to enable it afterwards, you can use:
+  - enableBgMonitoring (bool)
+
+To force sending monitoring information with background monitoring disabled,
+you can use the following two function:
+  - sendBgMonitoring ();
+
+To reinitialize the ApMon object after initialization, you can use the following function. This
+receives the same parameter constructor (internally the constructor also uses it).
+  - setDestinations (initValue)
+
+To check that the given configuration could be read and yielded some valid destinations, you
+can use the following function. This way you can decide to give a default destination in case
+the url-based configuration has failed.
+  - initializedOK ()
+
+  To change the log-level of the ApMon module, you can either set it in the configuration file
+or use the following function:
+  - setLogLevel(level);
+with the following valid log-levels: "DEBUG", "NOTICE", "INFO", "WARNING", "ERROR", "FATAL"
+
+  To set the maximum number of messages that can be sent, per second, use:
+  - setMaxMsgRate(self, rate);
+This limitation was introduced to limit the number of messages that are sent by ApMon, and
+thus, avoid flooding the network with unnecessary messages if users don't use it properly.
+(A classic example is doing sendParams in a loop, without any sleep in between.)
+
+  To stop background threands, close opened sockets, use:
+  - free(self):
+You have to use this function if you want to free all the resources that ApMon takes, and 
+allow it to be garbage-collected. You MUST use this function if you plan to create ApMon
+repeatedly inside your program.
+
+  ATTENTION:
+From version 2.2.0 a new mecanism was added to detect lost packets (see the two new fields:
+instance_id and sequence_number). However, if you use free, and then recreate the ApMon instance,
+these numbers will be also reinitialized and the new ApMon instance will be considered as
+another, completly different sender. Thus, the usage of free is not encouraged.
+
+  LIMITATIONS:
+  The maximum size of a datagram is specified by the constant MAX_DGRAM_SIZE;
+by default it is 8192B and the user should not modify this value as some hosts
+may not support UDP datagrams larger than 8KB.
+
+
+xApMon - MONITORING INFORMATION
+===============================
+
+ApMon can be configured to send to the MonALISA service monitoring information
+about the application or about the system. This information is obtained
+from the proc/ file system.
+
+There are three categories of monitoring datagrams that ApMon can send:
+
+a) job monitoring information - contains the following parameters:
+    run_time        - elapsed time from the start of this job
+    cpu_time        - processor time spent running this job
+    cpu_usage       - percent of the processor used for this job, as reported by ps
+    virtualmem      - virtual memory occupied by the job
+    rss             - resident image size of the job
+    mem_usage       - percent of the memory occupied by the job, as reported by ps
+    workdir_size    - size in MB of the working directory of the job
+    disk_total      - size in MB of the total size of the disk partition containing the working directory
+    disk_used       - size in MB of the used disk partition containing the working directory
+    disk_free       - size in MB of the free disk partition containing the working directory
+    disk_usage      - percent of the used disk partition containing the working directory
+    open_files      - the number of open files (including sockets)
+
+
+  To enable job monitoring put in the destination file the following lines:
+    xApMon_job_monitoring = on
+    xApMon_job_interval = 20
+  To disable sending of the virtualmem parameter, put in the destination file:
+    xApMon_job_virtualmem = off
+
+b) system monitoring information - contains the following parameters:
+    cpu_usr             - cpu-usage information
+    cpu_sys             
+    cpu_nice
+    cpu_idle
+    cpu_iowait
+    cpu_usage
+    context_switches_R
+    interrupts_R
+    load1               - system load information
+    load5
+    load15
+    mem_used            - memory usage information
+    mem_free
+    mem_actualfree	- actually free amount of memory: free + cached + buffers
+    mem_usage
+    mem_buffers
+    mem_cached
+    blocks_in_R
+    blocks_out_R
+    swap_used           - swap usage information
+    swap_free
+    swap_usage
+    swap_in_R
+    swap_out_R
+    net_in              - network transfer in kBps
+    net_out             - these will produce params called ethX_in, ethX_out, ethX_errs
+    net_errs            - for each eth interface
+    net_sockets         - number of opened sockets for each proto => sockets_tcp/udp/unix ...
+    net_tcp_details     - number of tcp sockets in each state => sockets_tcp_LISTEN, ...
+    processes		- number of processes currently running on the machine
+    uptime		- uptime of the machine, in days
+
+  To enable system monitoring, put in the destination file:
+    xApMon_sys_monitoring = on
+    xApMon_sys_interval = 30
+  To enable sending of mem_free and disable sending of processes parameters:
+    xApMon_sys_mem_free = on
+    xApMon_sys_processes = off
+
+c) general system information - contains the following parameters:
+    hostname
+    ip                  - will produce ethX_ip params for each interface
+    cpu_MHz
+    no_CPUs             - number of CPUs
+    total_mem
+    total_swap
+    cpu_vendor_id        - the CPU's vendor ID
+    cpu_family
+    cpu_model
+    cpu_model_name
+    bogomips             - number of bogomips for the CPU
+    kernel_version
+    platform
+    os_type              - RedHat, Slackware, SuSE etc.
+    
+  To enable general system information, put in the destination file
+    xApMon_general_info = on
+  To disable sending the number of CPUs, put in the configuration file:
+    xApMon_no_CPUs = off
+
+To set a different log-level, you can put the following line in the configuration file:
+    xApMon_loglevel = WARNING
+The valid log-levels are: "DEBUG", "NOTICE", "INFO", "WARNING", "ERROR", "FATAL".
+
+The datagrams with general system information are only sent if system
+monitoring is enabled, at greater time intervals (one datagram with general
+system information for each 2 system monitoring datagrams).
+
+
+BUGS
+====
+
+For bug reports, suggestions and comments please write to:
+MonALISA-CIT@cern.ch

@@ -1,0 +1,105 @@
+Revision history for Python extension ApMon.
+
+2.2.21 Monday, Febryary 6 2017
+    - Python 3.4 support and drop unneeded imports
+
+2.2.20 Friday, Octover 28 2016
+    - Pylint fixes
+
+2.2.18 Monday, October 05 2015
+    - Modernize code to python2.7
+
+2.2.17 Monday, October 05 2015
+    - Modernize code to python2.6
+
+2.2.16 Friday, October 02 2015
+    - Movement to PEP8 (changed tab spacings, ifs, this) "One step at the time"
+
+2.2.14 Tuesday, August 18 2009
+    - fixed typo in apmon.py file line 837 paramsPacker -> paramPacker; Thanks to Vytautas Karpavicius
+
+2.2.13 Wed Oct 31 16:18:52 CET 2007
+    - Adding swap_(in|out)_R also for kernel >2.5
+    - Renaming pages_(in|out) to blocks_(in|out)_R and adding it also for kernel >2.5
+    - adding cpu_iowait, interrupts_R and context_switches_R
+
+2.2.12 Thu Sep 27 17:41:17 CEST 2007
+    - fixing logger imports in ProcInfo
+    - added splitting support for large parameter sets.
+    - aded setMaxMsgSize() to set the maximum lenght of the message - this triggers when splitting should occur
+
+2.2.11 Tue Mar  6 16:50:05 CET 2007
+    - catching and ignoring useless stack traceback of Python trying to access None variable while interpreter shutdown
+    - fixing logger-related examples
+    
+2.2.10 Fri Feb  9 23:08:21 CET 2007
+    - logging constants moved inside class to avoid spurious errors on class destruction
+    - if available, use 'settimeout' instead of 'setsockopt' for the socket used for config reading,
+      since there are problems on 64bit platforms with packing the needed bytes
+
+2.2.9 Tue Aug 22 12:01:13 CEST 2006
+    - job monitoring checks the given pid when adding/removing job to monitor
+    - fixed children detection mechanism
+
+2.2.8 Mon Aug 21 14:41:33 CEST 2006
+    - fixed job parameters monitoring if one of the sub-processes of the job stops at some point
+    
+2.2.7 Wed Jun 14 11:31:13 CEST 2006
+    - added mem_actualfree: actually free memory: free + cached + buffers
+    - fixed bug in loading configuration from url (sometimes the config file wasn't fully retrieved)
+    - fixed uptime when machine started since less than a day
+    - convert long values to doubles
+
+2.2.6 Wed May 24 17:04:09 CEST 2006
+    - added new parameters: kernel_version, platform, os_type, mem_buffers, mem_cached
+    - introduced setup.py to standardize the installation of this module. Thanks to Brian Bockelman!
+
+2.2.5 Tue May  9 20:36:55 CEST 2006
+    - added try/except around each method that could raise an error
+    - ApMon InstanceID is generated differently in an attempt to better avoid collisions
+
+2.2.4 Sun Apr  2 19:05:46 CEST 2006
+    - added timeouts for network operations (config loading). We don't use anymore urllib2 which
+      doesn't support timeouts in Python 2.2
+    - fixed crash when failing to resolve destination hosts
+    - fixed sequence numbers when sending to multiple destinations
+    - fixed number of sent parameters when some of them have undefinded values
+    - added two new methods: setDestinations() and initializedOK() (see readme)
+
+2.2.3 Tue Mar 28 14:08:59 CEST 2006
+    - redirected to /dev/null the output from netstat - on some RH machines it could print strange errors
+    - if loglevel is DEBUG, print more details about the built packet
+    
+2.2.2 Tue Mar 21 15:31:47 CET 2006
+    - when free is called, don't return until the 2 daemon threads are stopped
+    
+2.2.1 Mon Mar  6 17:35:14 CET 2006
+    - Allow initialization of ApMon with a second parameter - the logLevel
+    
+2.2.0 Wed Feb 22 09:25:51 EET 2006
+    - Changed protocol (requires ML Service >= 2.4.10) so that each UDP packet includes 2 new INT32 fields
+      to identify the sender and the sequence number. This will enable ML Service to detect lost packets,
+      if it is configured to do so.
+    - ignore parameter with None name or None name.
+
+2.1.1 Tue Feb 14 17:55:01 EET 2006 
+    - fix options for multiple destinations.
+    - sendBgMonitoring accepts now a parameter to force sending the bgMonitoring, regardles of how much time passed since last sent
+    - LoadAvg (load1, load5, load15) works on Darwin (Mac OS X).
+    - fixed reporting cummulative values (ethX_yyy, swap in/out, pages in/out, cpu_zzz).
+
+2.1.0 Fri Jan 13 10:50:48 EET 2006
+    - change version to 2.1
+    - arange 'tab' character for one function in ProcInfo.py (readNetStat)
+
+2.0.10 Mon Dec 19 11:44:08 EET 2005
+    - added sockets info (tcp, udp, unix) and connection states for tcp sockets from netstat
+    - sorted the list of sent parameters - it should be easier to find them in the GUI client
+    - decreased the default max rate of sent messages to 20 per second.
+
+2.0.9 21.NOV.2005
+    - produce the number of running, sleeping, io blocked, zombie, stopped processes.
+
+2.0.8 27.OCT.2005
+    - fixed division by zero when no swap space is available.
+    - don't compute the used_swap and used_mem unless we have values for total and free mem and swap.

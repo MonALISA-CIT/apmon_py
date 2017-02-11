@@ -1,0 +1,94 @@
+#!/usr/bin/python
+"""
+# Thanks to Brian Bockelman <bbockelm@math.unl.edu> for this script
+# For more details: http://t2.unl.edu/monitoring/mlmetric
+"""
+import sys
+from apmon import ApMon
+from Logger import Logger
+
+def parseOpts(args):
+    # Stupid python 2.2 on SLC3 doesn't have optparser...
+    # TODO: now we are on python2.7.. change to use optparser
+    keywordOpts = {}
+    passedOpts = []
+    givenOpts = []
+    length = len(args)
+    optNum = 0
+    while optNum < length:
+        opt = args[optNum]
+        hasKeyword = False
+        if len(opt) > 2 and opt[0:2] == '--':
+            keyword = opt[2:]
+            hasKeyword = True
+        elif opt[0] == '-':
+            keyword = opt[1:]
+            hasKeyword = True
+        if hasKeyword:
+            if keyword.find('=') >= 0:
+                keyword, value = keyword.split('=', 1)
+                keywordOpts[keyword] = value
+            elif optNum + 1 == length:
+                passedOpts.append(keyword)
+            elif args[optNum+1][0] == '-':
+                passedOpts.append(keyword)
+            else:
+                keywordOpts[keyword] = args[optNum+1]
+                optNum += 1
+        else:
+            givenOpts.append(args[optNum])
+        optNum += 1
+    return keywordOpts, passedOpts, givenOpts
+
+
+def printOpts():
+    """ prints available options """
+    print "This script sends a single value to MonaLisa"
+    print "Required options:"
+    print "\t -dest host:port  host:port to send ApMon info to"
+    print "\t -cluster <name>  Name of the cluster to use"
+    print "\t -node <name> \t  Name of node"
+    print "\t -param <name> \t  Name of parameter"
+    print "\t -value <val> \t  Value of parameter.  Can be string or numeric"
+
+
+def main():
+    """ main function """
+    keywordOpts, passedOpts, givenOpts = parseOpts(sys.argv[1:])
+    if 'dest' in keywordOpts.keys():
+        dest = keywordOpts['dest']
+    else:
+        printOpts()
+        sys.exit(1)
+    if 'cluster' in keywordOpts.keys():
+        cluster = keywordOpts['cluster']
+    else:
+        printOpts()
+        sys.exit(1)
+    if 'node' in keywordOpts.keys():
+        node = keywordOpts['node']
+    else:
+        printOpts()
+        sys.exit(1)
+    if 'param' in keywordOpts.keys():
+        param = keywordOpts['param']
+    else:
+        printOpts()
+        sys.exit(1)
+    if 'value' in keywordOpts.keys():
+        value = keywordOpts['value']
+    else:
+        printOpts()
+        sys.exit(1)
+    apm = ApMon((dest, ), Logger.FATAL)
+    apm.confCheck = False
+    apm.enableBgMonitoring(False)
+    try:
+        value = float(value)
+    except:
+        pass
+    apm.sendParameters(cluster, node, {param: value})
+    sys.stderr = open('/dev/null', 'a')
+
+if __name__ == '__main__':
+    main()

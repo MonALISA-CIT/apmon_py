@@ -1,0 +1,5 @@
+include Changes
+include README
+include ApMon_doc/*
+include examples/*
+include MANIFEST.in

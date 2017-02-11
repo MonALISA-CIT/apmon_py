@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: ApMon_py
+Version: 2.2.16
+Summary: UNKNOWN
+Home-page: http://monalisa.caltech.edu
+Author: ML Team
+Author-email: MonALISA-CIT@cern.ch
+License: UNKNOWN
+Description: This module provides a lightweight python-based interface to send monitoring information to MonaLisa services, using the ApMon API.
+Platform: UNKNOWN
