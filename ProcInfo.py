@@ -1,8 +1,4 @@
-
 """
- * ApMon - Application Monitoring Tool
- * Version: 2.2.20
- *
  * Copyright (C) 2006 California Institute of Technology
  *
  * Permission is hereby granted, free of charge, to use, copy and modify

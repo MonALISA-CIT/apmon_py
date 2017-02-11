@@ -1,5 +1,8 @@
 Revision history for Python extension ApMon.
 
+2.17.02 Saturday, February 2017
+    - New tagging <Release>.<Year>.<Month>
+
 2.2.21 Monday, Febryary 6 2017
     - Python 3.4 support and drop unneeded imports
 

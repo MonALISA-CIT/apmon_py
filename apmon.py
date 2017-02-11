@@ -1,8 +1,5 @@
 # pylint: disable=line-too-long
 """
- * ApMon - Application Monitoring Tool
- * Version: 2.2.20
- *
  * Copyright (C) 2006 California Institute of Technology
  *
  * Permission is hereby granted, free of charge, to use, copy and modify
@@ -958,4 +955,4 @@ class ApMon(object):
         5: xdrlib.Packer.pack_double}
 
     __defaultPort = 8884
-    __version = "2.2.20-py"			# apMon version number
+    __version = "2.17.02-py"			# apMon version number. # TODO: this has to go from instalation...
