@@ -42,7 +42,11 @@ import re
 import xdrlib
 import socket
 import struct
-import io
+try:
+        from StringIO import StringIO
+except ImportError:
+        from io import StringIO
+
 import threading
 import time
 import random
@@ -705,7 +709,7 @@ class ApMon(object):
         if r.group(4) == None:
             path = ""  # no path is give, let server decide
         else:
-            path = r.group(4)
+            path = r.group(4).encode()
         sock = None
         err = None
         try:
@@ -740,15 +744,15 @@ class ApMon(object):
             self.logger.log(Logger.ERROR, "SocketError: "+str(err))
             return None
         try:
-            sock.send("GET "+path+" HTTP/1.0\n\n")
+            sock.send(b"GET "+path+b" HTTP/1.0\n\n")
             data = ""
             done = False
             while not done:
                 moreData = sock.recv(4096)
-                data += moreData
+                data += moreData.decode("utf-8")
                 done = len(moreData) == 0
             sock.close()
-            fd = io.StringIO(data)
+            fd = StringIO(data)
             httpStatus = 0
             while True:
                 line = fd.readline().strip()
