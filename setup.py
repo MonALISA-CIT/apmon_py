@@ -8,7 +8,7 @@ from distutils.core import setup
 
 setup(
     name="apmon",
-    version="2.17.02",
+    version="2.17.021",
     long_description=
     "This module provides a lightweight python-based "
     "interface to send monitoring information to "
@@ -16,7 +16,7 @@ setup(
     author="ML Team",
     author_email="MonALISA-CIT@cern.ch",
     url="http://monalisa.caltech.edu",
-    download_url = "https://github.com/MonALISA-CIT/apmon_py/tarball/2.17.02",
+    download_url = "https://github.com/MonALISA-CIT/apmon_py/tarball/2.17.021",
     keywords = ['ApMon', 'Monalisa', 'system', 'monitor'],
     install_requires = ['psutil', 'future'],
     py_modules=["apmon", "Logger", "ProcInfo"],
