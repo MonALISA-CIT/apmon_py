@@ -424,7 +424,7 @@ class ProcInfo(object):
             with open('/proc/net/dev') as fd:
                 line = fd.readline()
                 while line != '':
-                    m = re.match(r"\s*eth(\d):(\d+)\s+\d+\s+(\d+)\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+(\d+)\s+\d+\s+(\d+)", line)
+                    m = re.match(r"\s*eth(\d):\s*(\d+)\s+\d+\s+(\d+)\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+(\d+)\s+\d+\s+(\d+)", line)
                     if m is not None:
                         self.data['raw_eth'+m.group(1)+'_in'] = float(m.group(2))
                         self.data['raw_eth'+m.group(1)+'_out'] = float(m.group(4))
