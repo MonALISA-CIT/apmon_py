@@ -261,24 +261,31 @@ class ProcInfo(object):
     def readGenericInfo(self):
         """ reads the IP, hostname, cpu_MHz, uptime """
         self.data['hostname'] = socket.getfqdn()
+        # read interface name/ip from ifconfig
         try:
-            output = os.popen('/sbin/ifconfig -a')
-            eth, ip = '', ''
-            line = output.readline()
-            while line != '':
-                line = line.strip()
-                if line.startswith("eth"):
-                    elem = line.split()
-                    eth = elem[0]
-                    ip = ''
-                if len(eth) > 0 and line.startswith("inet addr:"):
-                    ip = re.match(r"inet addr:(\d+\.\d+\.\d+\.\d+)", line).group(1)
-                    self.data[eth + '_ip'] = ip
-                    eth = ''
-                line = output.readline()
-            output.close()
-        except IOError as ex:
-            del ex
+            with os.popen('/sbin/ifconfig -a') as if_data:
+                # see apmon_perl for regular expressions
+                address_re = re.compile(r"^inet(?: addr:)?\s*(\d+\.\d+\.\d+\.\d+)|^\s+inet6(?: addr:)?\s*([0-9a-fA-F:]+).*(?:Scope:Global|scopeid.*global)")
+                interface = {}
+                for line in if_data:
+                    line = line.strip()
+                    if not line:  # empty line *always* delimits end of interface block
+                        if 'name' in interface and interface['name'] in self._network_interfaces:
+                            self.data.update(
+                                (interface['name'] + '_' + proto, interface[proto])
+                                for proto in ('ip', 'ipv6') if proto in interface
+                            )
+                        interface = {}
+                    elif not interface:  # name line always starts interface block
+                        interface['name'] = line.split()[0].rstrip(b':')
+                    elif line.startswith(b'inet'):  # match both inet/inet6 at once
+                        address_match = address_re.match(line)
+                        if address_match is None:
+                            continue
+                        for group_idx, proto in enumerate(('ip', 'ipv6'), 1):
+                            if address_match.group(group_idx) and proto not in interface:
+                                interface[proto] = address_match.group(group_idx)
+        except IOError:
             self.logger.log(Logger.ERROR, "ProcInfo: cannot get output from /sbin/ifconfig -a")
 
         try:
