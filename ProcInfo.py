@@ -723,8 +723,8 @@ class ProcInfo(object):
 
         # eth - related params
         for rawParam in list(dataRef.keys()):
-            if (rawParam.find('raw_eth') == 0) and rawParam in prevDataRef:
-                param = rawParam.split('raw_')[1]
+            if (rawParam.find('raw_net_') == 0) and rawParam in prevDataRef:
+                param = rawParam.split('raw_net_')[1]
                 if interval != 0:
                     dataRef[param] = self.diffWithOverflowCheck(dataRef[rawParam], prevDataRef[rawParam])  # absolute difference
                     if param.find('_errs') == -1:
@@ -763,7 +763,7 @@ class ProcInfo(object):
                 netParam = m.group(1)
                 # self.logger.log(Logger.DEBUG, "Querying param "+net_param)
                 for key, value in list(dataHash.items()):
-                    m = re.match(r"eth\d_"+netParam, key)
+                    m = re.match(r"^(\w+)_"+netParam, key)
                     if m is not None:
                         result[key] = value
             else:
