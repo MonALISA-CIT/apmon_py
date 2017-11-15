@@ -428,20 +428,38 @@ class ProcInfo(object):
 
     def readNetworkInfo(self):
         """ read network information like transfered kBps and nr. of errors on each interface """
+        # get valid interfaces, excluding virtual ones such as loopback
         try:
+            interfaces = os.listdir('/sys/class/net/')
+        except OSError:
+            self.logger.log(Logger.ERROR, "ProcInfo: cannot open /sys/class/net/")
+        else:
+            self._network_interfaces = set()
+            for interface in interfaces:
+                if '/virtual/' not in os.readlink(os.path.join('/', 'sys', 'class', 'net', interface)):
+                    self._network_interfaces.add(interface)
+            self._network_interfaces.add("total_traffic")
+        try:
+            total_traffic_in = 0
+            total_traffic_out = 0
             with open('/proc/net/dev') as fd:
-                line = fd.readline()
-                while line != '':
-                    m = re.match(r"\s*eth(\d):\s*(\d+)\s+\d+\s+(\d+)\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+(\d+)\s+\d+\s+(\d+)", line)
-                    if m is not None:
-                        self.data['raw_eth'+m.group(1)+'_in'] = float(m.group(2))
-                        self.data['raw_eth'+m.group(1)+'_out'] = float(m.group(4))
-                        self.data['raw_eth'+m.group(1)+'_errs'] = int(m.group(3)) + int(m.group(5))
-                    line = fd.readline()
-        except IOError as ex:
-            del ex
+                for line in fd:
+                    interface_stats = re.match(
+                        r"\s*(.+?):\s*(\d+)\s+\d+\s+(\d+)\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+(\d+)\s+\d+\s+(\d+)",
+                        line)
+                    if interface_stats is not None:
+                        name, raw_in, err_in, raw_out, err_out = interface_stats.groups()
+                        if name not in self._network_interfaces:
+                            continue
+                        self.data['raw_net_' + name + '_in'] = float(raw_in)
+                        self.data['raw_net_' + name + '_out'] = float(raw_out)
+                        self.data['raw_net_' + name + '_errs'] = int(err_in) + int(err_out)
+                        total_traffic_in += float(raw_in)
+                        total_traffic_out += float(raw_out)
+            self.data["raw_net_total_traffic_in"] = total_traffic_in
+            self.data["raw_net_total_traffic_out"] = total_traffic_out
+        except IOError:
             self.logger.log(Logger.ERROR, "ProcInfo: cannot open /proc/net/dev")
-            return
 
 
     def readNetStat(self):
