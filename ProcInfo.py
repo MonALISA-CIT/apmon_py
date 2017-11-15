@@ -46,7 +46,7 @@ class ProcInfo(object):
         self.lastUpdateTime = 0  # when the last measurement was done
         self.jobs = {}             # jobs that will be monitored
         self.logger = logger	    # use the given logger
-        self.readGenericInfo()
+        self._network_interfaces = set()  # network interfaces to track
 
 
     def update(self):
@@ -63,6 +63,7 @@ class ProcInfo(object):
         self.countProcesses()
         self.readNetworkInfo()
         self.readNetStat()
+        self.readGenericInfo()
         for pid in list(self.jobs.keys()):
             self.readJobInfo(pid)
             self.readJobDiskUsage(pid)
