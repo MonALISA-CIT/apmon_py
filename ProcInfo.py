@@ -46,7 +46,7 @@ class ProcInfo(object):
         self.lastUpdateTime = 0  # when the last measurement was done
         self.jobs = {}             # jobs that will be monitored
         self.logger = logger	    # use the given logger
-        self.readGenericInfo()
+        self._network_interfaces = set()  # network interfaces to track
 
 
     def update(self):
@@ -63,6 +63,7 @@ class ProcInfo(object):
         self.countProcesses()
         self.readNetworkInfo()
         self.readNetStat()
+        self.readGenericInfo()
         for pid in list(self.jobs.keys()):
             self.readJobInfo(pid)
             self.readJobDiskUsage(pid)
@@ -260,24 +261,31 @@ class ProcInfo(object):
     def readGenericInfo(self):
         """ reads the IP, hostname, cpu_MHz, uptime """
         self.data['hostname'] = socket.getfqdn()
+        # read interface name/ip from ifconfig
         try:
-            output = os.popen('/sbin/ifconfig -a')
-            eth, ip = '', ''
-            line = output.readline()
-            while line != '':
-                line = line.strip()
-                if line.startswith("eth"):
-                    elem = line.split()
-                    eth = elem[0]
-                    ip = ''
-                if len(eth) > 0 and line.startswith("inet addr:"):
-                    ip = re.match(r"inet addr:(\d+\.\d+\.\d+\.\d+)", line).group(1)
-                    self.data[eth + '_ip'] = ip
-                    eth = ''
-                line = output.readline()
-            output.close()
-        except IOError as ex:
-            del ex
+            with os.popen('/sbin/ifconfig -a') as if_data:
+                # see apmon_perl for regular expressions
+                address_re = re.compile(r"^inet(?: addr:)?\s*(\d+\.\d+\.\d+\.\d+)|^\s+inet6(?: addr:)?\s*([0-9a-fA-F:]+).*(?:Scope:Global|scopeid.*global)")
+                interface = {}
+                for line in if_data:
+                    line = line.strip()
+                    if not line:  # empty line *always* delimits end of interface block
+                        if 'name' in interface and interface['name'] in self._network_interfaces:
+                            self.data.update(
+                                (interface['name'] + '_' + proto, interface[proto])
+                                for proto in ('ip', 'ipv6') if proto in interface
+                            )
+                        interface = {}
+                    elif not interface:  # name line always starts interface block
+                        interface['name'] = line.split()[0].rstrip(b':')
+                    elif line.startswith(b'inet'):  # match both inet/inet6 at once
+                        address_match = address_re.match(line)
+                        if address_match is None:
+                            continue
+                        for group_idx, proto in enumerate(('ip', 'ipv6'), 1):
+                            if address_match.group(group_idx) and proto not in interface:
+                                interface[proto] = address_match.group(group_idx)
+        except IOError:
             self.logger.log(Logger.ERROR, "ProcInfo: cannot get output from /sbin/ifconfig -a")
 
         try:
@@ -420,20 +428,38 @@ class ProcInfo(object):
 
     def readNetworkInfo(self):
         """ read network information like transfered kBps and nr. of errors on each interface """
+        # get valid interfaces, excluding virtual ones such as loopback
         try:
+            interfaces = os.listdir('/sys/class/net/')
+        except OSError:
+            self.logger.log(Logger.ERROR, "ProcInfo: cannot open /sys/class/net/")
+        else:
+            self._network_interfaces = set()
+            for interface in interfaces:
+                if '/virtual/' not in os.readlink(os.path.join('/', 'sys', 'class', 'net', interface)):
+                    self._network_interfaces.add(interface)
+            self._network_interfaces.add("total_traffic")
+        try:
+            total_traffic_in = 0
+            total_traffic_out = 0
             with open('/proc/net/dev') as fd:
-                line = fd.readline()
-                while line != '':
-                    m = re.match(r"\s*eth(\d):\s*(\d+)\s+\d+\s+(\d+)\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+(\d+)\s+\d+\s+(\d+)", line)
-                    if m is not None:
-                        self.data['raw_eth'+m.group(1)+'_in'] = float(m.group(2))
-                        self.data['raw_eth'+m.group(1)+'_out'] = float(m.group(4))
-                        self.data['raw_eth'+m.group(1)+'_errs'] = int(m.group(3)) + int(m.group(5))
-                    line = fd.readline()
-        except IOError as ex:
-            del ex
+                for line in fd:
+                    interface_stats = re.match(
+                        r"\s*(.+?):\s*(\d+)\s+\d+\s+(\d+)\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+(\d+)\s+\d+\s+(\d+)",
+                        line)
+                    if interface_stats is not None:
+                        name, raw_in, err_in, raw_out, err_out = interface_stats.groups()
+                        if name not in self._network_interfaces:
+                            continue
+                        self.data['raw_net_' + name + '_in'] = float(raw_in)
+                        self.data['raw_net_' + name + '_out'] = float(raw_out)
+                        self.data['raw_net_' + name + '_errs'] = int(err_in) + int(err_out)
+                        total_traffic_in += float(raw_in)
+                        total_traffic_out += float(raw_out)
+            self.data["raw_net_total_traffic_in"] = total_traffic_in
+            self.data["raw_net_total_traffic_out"] = total_traffic_out
+        except IOError:
             self.logger.log(Logger.ERROR, "ProcInfo: cannot open /proc/net/dev")
-            return
 
 
     def readNetStat(self):
@@ -697,8 +723,8 @@ class ProcInfo(object):
 
         # eth - related params
         for rawParam in list(dataRef.keys()):
-            if (rawParam.find('raw_eth') == 0) and rawParam in prevDataRef:
-                param = rawParam.split('raw_')[1]
+            if (rawParam.find('raw_net_') == 0) and rawParam in prevDataRef:
+                param = rawParam.split('raw_net_')[1]
                 if interval != 0:
                     dataRef[param] = self.diffWithOverflowCheck(dataRef[rawParam], prevDataRef[rawParam])  # absolute difference
                     if param.find('_errs') == -1:
@@ -737,7 +763,7 @@ class ProcInfo(object):
                 netParam = m.group(1)
                 # self.logger.log(Logger.DEBUG, "Querying param "+net_param)
                 for key, value in list(dataHash.items()):
-                    m = re.match(r"eth\d_"+netParam, key)
+                    m = re.match(r"^(\w+)_"+netParam, key)
                     if m is not None:
                         result[key] = value
             else:
