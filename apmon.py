@@ -428,6 +428,9 @@ class ApMon(object):
                 self.__reloadAddresses()
             elif isinstance(initValue, bytes):
                 self.configAddresses = [ initValue.decode('utf8') ]
+                self.configRecheck = True
+                self.configRecheckInterval = 600
+                self.__reloadAddresses()
             elif isinstance(initValue, list):
                 self.configAddresses = initValue
                 self.configRecheck = True
