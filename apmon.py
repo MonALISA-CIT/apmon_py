@@ -54,9 +54,10 @@ import copy
 import os
 import ProcInfo
 from Logger import Logger
-from past.builtins import basestring
-from future import standard_library
-standard_library.install_aliases()
+
+
+def pack_string3(packer, s):
+    packer.pack_string(s.encode('utf8'))
 
 # __all__ = ["ApMon"]
 
@@ -420,8 +421,13 @@ class ApMon(object):
         Set the destinations of the ApMon instance. It accepts the same parameters as the constructor.
         """
         try:
-            if isinstance(initValue, basestring):
+            if isinstance(initValue, str):
                 self.configAddresses = [initValue]
+                self.configRecheck = True
+                self.configRecheckInterval = 600
+                self.__reloadAddresses()
+            elif isinstance(initValue, bytes):
+                self.configAddresses = [ initValue.decode('utf8') ]
                 self.configRecheck = True
                 self.configRecheckInterval = 600
                 self.__reloadAddresses()
@@ -791,13 +797,13 @@ class ApMon(object):
         crtSenderRef = self.senderRef[destination]
 
         hdrPacker = xdrlib.Packer()
-        hdrPacker.pack_string("v:"+self.__version+"p:"+passwd)
+        pack_string3(hdrPacker, "v:"+self.__version+"p:"+passwd)
         hdrPacker.pack_int(crtSenderRef['INSTANCE_ID'])
         hdrBuffer1 = hdrPacker.get_buffer()
         hdrPacker.reset()
 
-        hdrPacker.pack_string(clusterName)
-        hdrPacker.pack_string(nodeName)
+        pack_string3(hdrPacker, clusterName)
+        pack_string3(hdrPacker, nodeName)
         hdrBuffer2 = hdrPacker.get_buffer()
         hdrPacker.reset()
 
@@ -807,7 +813,7 @@ class ApMon(object):
         paramBlocks = []
 
         crtParamsCount = 0
-        crtParamsBuffer = ''
+        crtParamsBuffer = b''
         crtParamsBuffSize = 0
 
         mapV = None
@@ -838,7 +844,7 @@ class ApMon(object):
         paramBlocks.append((crtParamsCount, crtParamsBuffer)) # update last params block
         paramPacker.reset()
 
-        paramsTime = ''
+        paramsTime = b''
         if timeStamp is not None and timeStamp > 0:
             paramPacker.pack_int(timeStamp)
             paramsTime = paramPacker.get_buffer()
@@ -873,13 +879,10 @@ class ApMon(object):
         if value is None:
             self.logger.log(Logger.WARNING, "Ignore " + str(name)+ " parameter because of None value")
             return False
-        if isinstance(name, unicode):
-            name = str(name)
-        if isinstance(value, unicode):
-            value = str(value)
+            
         try:
             typeValue = self.__valueTypes[type(value)]
-            xdrPacker.pack_string(name)
+            pack_string3(xdrPacker, name)
             xdrPacker.pack_int(typeValue)
             self.__packFunctions[typeValue](xdrPacker, value)
             self.logger.log(Logger.NOTICE, "Adding parameter "+str(name)+" = "+str(value))
@@ -958,7 +961,7 @@ class ApMon(object):
         type(1.0): 5}		# XDR_REAL64
 
     __packFunctions = {
-        0: xdrlib.Packer.pack_string,
+        0: pack_string3,
         2: xdrlib.Packer.pack_int,
         5: xdrlib.Packer.pack_double}
 

@@ -18,7 +18,7 @@ setup(
     url="http://monalisa.caltech.edu",
     download_url = "https://github.com/MonALISA-CIT/apmon_py/tarball/2.17.021",
     keywords = ['ApMon', 'Monalisa', 'system', 'monitor'],
-    install_requires = ['psutil', 'future'],
+    install_requires = ['psutil'],
     py_modules=["apmon", "Logger", "ProcInfo"],
     scripts=["examples/mlmetric"],
 )
