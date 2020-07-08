@@ -8,7 +8,7 @@ import os
 import time
 
 # apm = apmon.ApMon('dest_3.conf');
-apm = apmon.ApMon('http://monalisa2.cern.ch/~catac/apmon/destinations.conf')
+apm = apmon.ApMon('http://monalisa.cern.ch/apmon/destinations.conf')
 # apm = apmon.ApMon('http://gangamon.cern.ch:8080/apmon/ganga.conf');
 # apm = apmon.ApMon({'lxgate35.cern.ch' : {'sys_interval' : 10}});
 apm.setLogLevel('DEBUG')

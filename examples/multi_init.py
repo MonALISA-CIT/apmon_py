@@ -8,7 +8,7 @@ import time
 
 def doStuff(i):
     print("start", i)
-    apm = apmon.ApMon('http://monalisa2.cern.ch/~catac/apmon/destinations.conf')
+    apm = apmon.ApMon('http://monalisa.cern.ch/apmon/destinations.conf')
     apm.sendParameter('cluster', 'node', 'param', 34+i)
     time.sleep(0.01)
     apm.sendParameter('cluster', 'node', 'param', -34+i)

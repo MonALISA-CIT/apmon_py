@@ -11,12 +11,12 @@ import time
 from Logger import Logger
 # read destination hosts form file
 
-apmonUrls = ["http://lxgate35.cern.ch:40808/ApMonConf1", "http://monalisa.cacr.caltech.edu:40808/ApMonConf"]
+apmonUrls = ["http://lxgate35.cern.ch:40808/ApMonConf1", "http://monalisa.cern.ch/apmon/destinations.conf"]
 apm = apmon.ApMon(apmonUrls, Logger.DEBUG)
 
 if not apm.initializedOK():
     print("It seems that ApMon cannot read its configuration. Setting the default destination")
-    apm.setDestinations({'pcardaab.cern.ch:8884': {'sys_monitoring': 0, 'general_info': 0, 'job_monitoring': 1, 'job_interval': 300}})
+    apm.setDestinations({'aliendb10.cern.ch:8884': {'sys_monitoring': 0, 'general_info': 0, 'job_monitoring': 1, 'job_interval': 300}})
 
 
 # set the destinations as a tuple of strings

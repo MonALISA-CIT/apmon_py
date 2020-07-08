@@ -10,7 +10,7 @@ import time
 
 # Also, we show how you can initialize using a hash of hashes.
 # By default, cpu_usr cpu_sys are not sent. This way you can enable them
-apm = apmon.ApMon({'pcardaab.cern.ch': {'sys_cpu_usr': True, 'sys_cpu_sys': True, 'job_monitoring': False}}, defaultLogLevel=apmon.Logger.WARNING)
+apm = apmon.ApMon({'aliendb10.cern.ch': {'sys_cpu_usr': True, 'sys_cpu_sys': True, 'job_monitoring': False}}, defaultLogLevel=apmon.Logger.WARNING)
 # apm.setLogLevel("DEBUG")
 
 for i in range(1, 100):

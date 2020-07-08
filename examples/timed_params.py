@@ -14,7 +14,7 @@ import random
 # Note that background monitor process sends information about the host. In apmon.py
 # is the list with default parameters. If you want to modify what is sent, you can
 # take the configuration from a file or URL
-apm = apmon.ApMon(('pcardaab.cern.ch:8884', ))
+apm = apmon.ApMon(('aliendb10.cern.ch:8884', ))
 
 for i in list(range(1, 20)):
     my_time = int(time.time() - 2 * 3600 - (20 - i) * 60)
