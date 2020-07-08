@@ -940,7 +940,7 @@ class ApMon(object):
         Try to generate a more random instance id. It takes the process ID and
         combines it with the last digit from the IP addess and a random number
         """
-        pid = os.getpid()
+        pid = os.getpid()%32768
         ip = random.randint(0, 255)
         try:
             sip = socket.gethostbyname(socket.gethostname())
