@@ -882,7 +882,6 @@ class ApMon(object):
             
         try:
             typeValue = self.__valueTypes[type(value)]
-            # xdrPacker.pack_string(name)
             pack_string3(xdrPacker, name)
             xdrPacker.pack_int(typeValue)
             self.__packFunctions[typeValue](xdrPacker, value)
@@ -962,7 +961,7 @@ class ApMon(object):
         type(1.0): 5}		# XDR_REAL64
 
     __packFunctions = {
-        0: xdrlib.Packer.pack_string,
+        0: pack_string3,
         2: xdrlib.Packer.pack_int,
         5: xdrlib.Packer.pack_double}
 
