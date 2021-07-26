@@ -436,7 +436,8 @@ class ProcInfo(object):
         else:
             self._network_interfaces = set()
             for interface in interfaces:
-                if '/virtual/' not in os.readlink(os.path.join('/', 'sys', 'class', 'net', interface)):
+                interface_path = os.path.join('/', 'sys', 'class', 'net', interface)
+                if os.path.islink(interface_path) and '/virtual/' not in os.readlink(interface_path):
                     self._network_interfaces.add(interface)
             self._network_interfaces.add("total_traffic")
         try:
